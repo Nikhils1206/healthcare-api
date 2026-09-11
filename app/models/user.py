@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import UUID, String, Enum, Boolean, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 from app.core.enums import UserRole
@@ -58,3 +58,9 @@ class User(Base):
         onupdate=datetime.utcnow,
         nullable=False
     )
+    member = relationship(
+    "Member",
+    back_populates="user",
+    uselist=False,
+    cascade="all, delete"
+)
