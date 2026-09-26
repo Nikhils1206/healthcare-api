@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
 from app.models.claim import ClaimStatus
+from app.models.claim_ai_analysis import ClaimAIAnalysis
 
-
-def test_analyze_claim(client):
+def test_analyze_claim(client, db):
     # Register user
     register_response = client.post(
         "/auth/register",
@@ -95,3 +95,17 @@ def test_analyze_claim(client):
     assert data["analysis"]["risk_level"] == "HIGH"
     assert len(data["analysis"]["flags"]) > 0
     assert "summary" in data["analysis"]
+
+    db_analysis = (
+        db.query(ClaimAIAnalysis)
+        .filter(ClaimAIAnalysis.claim_id == claim_id)
+        .first()
+    )
+
+    assert db_analysis is not None
+    assert float(db_analysis.risk_score) == 0.82
+    assert db_analysis.risk_level == "HIGH"
+    assert db_analysis.flags == [
+        "Unusually high billed amount"
+    ]
+    assert db_analysis.summary == "Claim requires additional review."

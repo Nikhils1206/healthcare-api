@@ -20,7 +20,10 @@ from app.services.claim_service import (
     get_claims,
     reject_claim,
 )
-from app.services.ai_service import analyze_claim
+from app.services.ai_service import (
+    analyze_claim,
+    save_claim_analysis,
+)
 
 
 router = APIRouter(
@@ -29,6 +32,7 @@ router = APIRouter(
 )
 
 
+# CREATE CLAIM
 @router.post(
     "",
     response_model=ClaimResponse,
@@ -46,6 +50,7 @@ def create_claim_endpoint(
     )
 
 
+# GET CLAIMS
 @router.get(
     "",
     response_model=list[ClaimResponse],
@@ -69,6 +74,7 @@ def get_claims_endpoint(
     )
 
 
+# GET SINGLE CLAIM
 @router.get(
     "/{claim_id}",
     response_model=ClaimResponse,
@@ -85,6 +91,7 @@ def get_claim_endpoint(
     )
 
 
+# APPROVE CLAIM
 @router.patch(
     "/{claim_id}/approve",
     response_model=ClaimResponse,
@@ -102,6 +109,7 @@ def approve_claim_endpoint(
     )
 
 
+# REJECT CLAIM
 @router.patch(
     "/{claim_id}/reject",
     response_model=ClaimResponse,
@@ -117,6 +125,7 @@ def reject_claim_endpoint(
     )
 
 
+# AI CLAIM ANALYSIS
 @router.post(
     "/{claim_id}/analyze",
 )
@@ -133,8 +142,21 @@ def analyze_claim_endpoint(
 
     analysis = analyze_claim(claim)
 
+    saved_analysis = save_claim_analysis(
+        db=db,
+        claim_id=claim.id,
+        analysis=analysis,
+    )
+
     return {
         "claim_id": claim.id,
         "claim_number": claim.claim_number,
-        "analysis": analysis,
+        "analysis": {
+            "id": saved_analysis.id,
+            "risk_score": saved_analysis.risk_score,
+            "risk_level": saved_analysis.risk_level,
+            "flags": saved_analysis.flags,
+            "summary": saved_analysis.summary,
+            "analyzed_at": saved_analysis.analyzed_at,
+        },
     }

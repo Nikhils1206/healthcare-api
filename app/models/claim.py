@@ -83,5 +83,11 @@ class Claim(Base):
         "Member",
         back_populates="claims"
     )
-
+    
+    ai_analysis = relationship(
+    "ClaimAIAnalysis",
+    back_populates="claim",
+    uselist=False,
+    cascade="all, delete-orphan",
+)
     

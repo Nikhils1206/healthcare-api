@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-
+from app.middlewares.logging import logging_middleware
 from app.routers.auth import router as auth_router
 from app.routers.member import router as member_router
 from app.routers.claim import router as claim_router
@@ -10,7 +10,7 @@ from app.exceptions.custom import AppException
 app = FastAPI(
     title="Healthcare Claims & Member Management API"
 )
-
+app.middleware("http")(logging_middleware)
 
 app.add_exception_handler(
     AppException,
