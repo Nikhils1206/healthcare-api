@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 
-from app.exceptions.custom import AppException
-from app.exceptions.handlers import app_exception_handler
-
 from app.routers.auth import router as auth_router
 from app.routers.member import router as member_router
 from app.routers.claim import router as claim_router
+from app.exceptions.handlers import app_exception_handler
+from app.exceptions.custom import AppException
 
 
 app = FastAPI(
@@ -26,6 +25,4 @@ app.include_router(claim_router)
 
 @app.get("/")
 def root():
-    return {
-        "message": "Healthcare API"
-    }
+    return {"message": "Healthcare API"}

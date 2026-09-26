@@ -20,6 +20,7 @@ from app.services.claim_service import (
     get_claims,
     reject_claim,
 )
+from app.services.ai_service import analyze_claim
 
 
 router = APIRouter(
@@ -27,10 +28,6 @@ router = APIRouter(
     tags=["Claims"],
 )
 
-
-# ---------------------------------------------------------
-# Create Claim
-# ---------------------------------------------------------
 
 @router.post(
     "",
@@ -48,10 +45,6 @@ def create_claim_endpoint(
         user_id=current_user.id,
     )
 
-
-# ---------------------------------------------------------
-# Get My Claims
-# ---------------------------------------------------------
 
 @router.get(
     "",
@@ -76,10 +69,6 @@ def get_claims_endpoint(
     )
 
 
-# ---------------------------------------------------------
-# Get Single Claim
-# ---------------------------------------------------------
-
 @router.get(
     "/{claim_id}",
     response_model=ClaimResponse,
@@ -95,11 +84,6 @@ def get_claim_endpoint(
         user_id=current_user.id,
     )
 
-
-# ---------------------------------------------------------
-# Approve Claim
-# ADMIN / PROVIDER only
-# ---------------------------------------------------------
 
 @router.patch(
     "/{claim_id}/approve",
@@ -118,11 +102,6 @@ def approve_claim_endpoint(
     )
 
 
-# ---------------------------------------------------------
-# Reject Claim
-# ADMIN / PROVIDER only
-# ---------------------------------------------------------
-
 @router.patch(
     "/{claim_id}/reject",
     response_model=ClaimResponse,
@@ -136,3 +115,26 @@ def reject_claim_endpoint(
         db=db,
         claim_id=claim_id,
     )
+
+
+@router.post(
+    "/{claim_id}/analyze",
+)
+def analyze_claim_endpoint(
+    claim_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    claim = get_claim(
+        db=db,
+        claim_id=claim_id,
+        user_id=current_user.id,
+    )
+
+    analysis = analyze_claim(claim)
+
+    return {
+        "claim_id": claim.id,
+        "claim_number": claim.claim_number,
+        "analysis": analysis,
+    }
