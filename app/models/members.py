@@ -71,4 +71,8 @@ class Member(Base):
         "User",
         back_populates="member"
     )
- 
+    claims = relationship(
+    "Claim",
+    back_populates="member",
+    cascade="all, delete-orphan"
+)

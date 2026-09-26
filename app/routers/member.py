@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.schemas.member import MemberCreate, MemberResponse
+from app.schemas.member import MemberCreate, MemberResponse, MemberUpdate
 from app.auth.dependency import get_current_user
 from app.models.user import User
 from app.services.member_services import create_member, get_member_by_user_id, update_member,delete_member
@@ -40,16 +40,19 @@ def get_member_profile(
         user_id=current_user.id,
     )
 
-@router.patch("/me", response_model=MemberResponse)
-def update_member_profile(
-    member: MemberCreate,
+@router.patch(
+    "/me",
+    response_model=MemberResponse,
+)
+def update_member_endpoint(
+    member_data: MemberUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     return update_member(
         db=db,
-        member_data=member,
         user_id=current_user.id,
+        member_data=member_data,
     )
 
 @router.delete("/me")

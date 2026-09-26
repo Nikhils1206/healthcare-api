@@ -84,8 +84,4 @@ class Claim(Base):
         back_populates="claims"
     )
 
-    claims=relationship(
-        "Claim",
-        back_populates="member",
-        cascade="all, delete"
-    )
+    
